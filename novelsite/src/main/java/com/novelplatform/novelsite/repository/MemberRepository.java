@@ -1,10 +1,9 @@
 package com.novelplatform.novelsite.repository;
 
 import com.novelplatform.novelsite.domain.member.Member;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-public interface MemberRepository extends JpaRepository<Member, Long>{
-    List<Member> findByName(String name);
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    Optional<Member> findByUsername(String username);
 }
