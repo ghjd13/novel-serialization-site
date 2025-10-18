@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.novelplatform'
@@ -9,20 +9,40 @@ version = '0.0.1-SNAPSHOT'
 description = 'Spring Boot JPA 기반 소설 연재 사이트 구축 프로젝트'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
-	maven { url = 'https://repo.spring.io/snapshot' }
+    mavenCentral()
+    maven { url = 'https://repo.spring.io/snapshot' }
+}
+
+def querydslGeneratedDir = layout.buildDirectory.dir('generated/querydsl')
+
+sourceSets {
+    main {
+        java {
+            srcDir querydslGeneratedDir
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.annotationProcessorGeneratedSourcesDirectory = querydslGeneratedDir.get().asFile
+}
+
+tasks.named('clean') {
+    doFirst {
+        delete querydslGeneratedDir.get().asFile
+    }
 }
 
 dependencies {
@@ -42,7 +62,7 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // 테스트
+    // 개발/테스트 도구
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -51,11 +71,10 @@ dependencies {
     // Querydsl (Jakarta)
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
-
-    // 핵심: APT가 JPA 어노테이션을 볼 수 있게 추가
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 }
+
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
