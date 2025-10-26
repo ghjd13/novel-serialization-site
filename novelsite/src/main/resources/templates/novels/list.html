@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>소설 목록</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>소설 목록</h1>
+        <a class="btn btn-primary" th:href="@{/novels/new}">소설 등록</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>작가</th>
+            <th>등록일</th>
+            <th>표지</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="novel : ${novels}">
+            <td th:text="${novel.title}"></td>
+            <td th:text="${novel.author}"></td>
+            <td th:text="${#temporals.format(novel.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+                <img th:if="${novel.coverImagePath != null}" th:src="${novel.coverImagePath}" alt="표지" style="height: 80px;">
+                <span th:if="${novel.coverImagePath == null}" class="text-muted">이미지 없음</span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(novels)}">
+            <td colspan="4" class="text-center text-muted">등록된 소설이 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+    <a class="btn btn-outline-secondary" th:href="@{/}">홈으로</a>
+</div>
+</body>
+</html>

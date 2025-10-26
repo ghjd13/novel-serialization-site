@@ -1,14 +1,42 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>NovelSite</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>Novel Site</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body>
-<main>
-    <h1>NovelSite</h1>
-    <p>소설 연재 플랫폼 기반 프로젝트입니다. 향후 기능이 이곳에서 확장됩니다.</p>
-</main>
+<nav class="navbar navbar-expand-lg bg-body-tertiary mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">Novel Site</a>
+        <div class="d-flex">
+            <div th:if="${username == null}">
+                <a class="btn btn-outline-primary me-2" th:href="@{/login}">로그인</a>
+                <a class="btn btn-primary" th:href="@{/members/register}">회원가입</a>
+            </div>
+            <div th:if="${username != null}" class="d-flex align-items-center gap-2">
+                <span th:text="${username}"></span>
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn btn-outline-danger" type="submit">로그아웃</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="p-5 mb-4 bg-light rounded-3">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold">웹소설 연재 사이트 MVP</h1>
+            <p class="col-md-8 fs-4">회원가입 후 소설을 등록해보세요. 표지 이미지 업로드도 지원합니다.</p>
+            <a th:if="${username != null}" class="btn btn-primary btn-lg" th:href="@{/novels/new}">소설 등록</a>
+            <a th:if="${username == null}" class="btn btn-primary btn-lg" th:href="@{/members/register}">회원가입 하기</a>
+        </div>
+    </div>
+    <div class="mt-4">
+        <h2>등록된 소설</h2>
+        <a class="btn btn-outline-secondary mb-3" th:href="@{/novels}">목록 보기</a>
+    </div>
+</div>
 </body>
 </html>
