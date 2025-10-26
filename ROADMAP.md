@@ -1,50 +1,118 @@
-# Spring Boot JPA Novel Serialization Site — Roadmap
+# 웹소설 연재 사이트 개발 프로젝트 기획서 (학원생 기준)
 
-## 0. Vision & Product Goal
-- **Product vision:** 안정적인 연재 경험과 작가·독자 커뮤니티를 제공하는 프로덕션급 소설 플랫폼 구축
-- **2025 핵심 지표(KPI 가이드라인):**
-  - 주간 활성 작가 수 200명 → 500명 (연말)
-  - 평균 페이지 응답 시간 1초 이하, 오류율 0.1% 이하 유지
-  - 스토리 완료율(연재 지속률) 60% 이상
+## 1. 프로젝트 개요
+### 1.1 프로젝트 목표 및 범위
+본 프로젝트는 Spring Boot를 기반으로 한 웹소설 연재 사이트의 최소 기능 제품(MVP)을 8주 안에 구현하는 것을 목표로 합니다. 학원 또는 부트캠프에서 Spring Boot와 JPA를 처음 접하는 학습자를 대상으로 하며, 실습을 통해 실무 감각을 익히도록 설계되었습니다.
 
-## 1. Current Status (2024 Q4)
-- Spring Boot 3.5, Java 21 기반 애플리케이션 골격과 최소 회원 엔티티/저장소 구현
-- Spring Security 폼 로그인 기본 구성과 BCrypt 비밀번호 인코딩 설정 완료
-- JPA 저장소 단위 테스트 및 애플리케이션 컨텍스트 로딩 테스트 보유
-- CI/CD, 검색, 도메인 기능, 운영 인프라 등은 아직 미구현 단계
+- **목표:** 회원 관리와 소설 등록/관리를 중심으로 CRUD, 보안, 파일 업로드의 기초를 학습합니다.
+- **핵심 기능 범위:**
+  - 회원 가입 및 로그인 (Spring Security 기반)
+  - 소설 등록, 수정, 삭제, 목록/상세 보기
+  - 표지 이미지 업로드 및 관리 (로컬 저장)
+- **기술 스택:** Spring Boot, Spring Data JPA, Spring Security, H2/MySQL, Thymeleaf, Bootstrap
+- **배포:** 로컬 실행을 기본으로 하며, 선택적으로 Heroku 등 간단한 클라우드 배포를 경험할 수 있습니다.
+- **학습 포인트:** Spring Boot 프로젝트 구조, JPA 엔티티/리포지토리 작성, 기본 보안 설정, 파일 업로드 처리, 로컬 개발 환경 구성.
 
-## 2. Sprint-based Execution Plan (2025)
-| Sprint | 기간(예상) | 목표 | 주요 작업 | 완료 기준 |
+## 2. 시스템 아키텍처 및 기술 스택
+### 2.1 기술 스택 선정 및 역할
+| 구분 | 기술 | 역할 및 선정 이유 | 학습 포인트 |
+| --- | --- | --- | --- |
+| 백엔드 프레임워크 | Spring Boot | 내장 톰캣으로 빠른 시작, 자동 설정으로 초보자도 환경 구성 용이 | 애플리케이션 구조 파악, 의존성 관리 |
+| 데이터베이스 | H2(개발/테스트), MySQL(운영) | H2로 빠른 로컬 개발, MySQL로 실 DB 경험 | DB 프로필 전환, SQL 콘솔 사용 |
+| 데이터 접근 | Spring Data JPA | CRUD 자동화, 쿼리 부담 완화 | 엔티티 매핑, 쿼리 메소드 작성 |
+| 인증/인가 | Spring Security | 기본 로그인/세션 관리 제공 | Security 필터 체인 이해, 비밀번호 암호화 |
+| 뷰 템플릿 | Thymeleaf | HTML과 연동이 쉬워 서버 렌더링 학습에 적합 | 컨트롤러-뷰 데이터 바인딩 |
+| 프론트엔드 | Bootstrap | CSS 작성 부담 감소, 반응형 UI 손쉬운 구현 | 반응형 레이아웃, 컴포넌트 활용 |
+| 배포 환경 | 로컬 (옵션: Heroku) | 로컬 서버로 시작, 필요시 간단한 클라우드 배포 실습 | JAR 실행, 간단 배포 파이프라인 |
+
+- **학습 포인트:** Spring Boot와 JPA의 연동 흐름 이해, 대체 기술(React, JWT 등)을 언급하여 확장 가능성 탐색.
+
+## 3. 개발 환경 구축
+### 3.1 데이터베이스 설치 및 설정
+- **개발/테스트: H2 데이터베이스**
+  1. H2 공식 사이트에서 버전 2.1.214 이상 다운로드
+  2. `bin/h2.bat`(Windows) 또는 `bin/h2.sh`(macOS/Linux) 실행
+  3. 웹 콘솔 접속 후 JDBC URL을 `jdbc:h2:~/novel`로 생성, 이후 `jdbc:h2:tcp://localhost/~/novel` (서버 모드)
+  4. **트러블슈팅:** 파일 락 발생 시 서버 모드 실행 여부 확인
+  5. **학습 포인트:** 임베디드 모드와 서버 모드 차이 이해
+
+- **운영 대비: MySQL (Docker 권장)**
+  1. Docker 설치 후 아래 명령 실행
+     ```bash
+     docker run --name mysql-novel -e MYSQL_ROOT_PASSWORD=test1234 -p 3306:3306 -d mysql:8.0
+     ```
+  2. MySQL Workbench 또는 DBeaver로 접속 테스트
+  3. **학습 포인트:** Docker 컨테이너 개념, 환경 변수로 비밀번호 관리
+
+### 3.2 Spring 프로젝트 설정
+- Spring Initializr에서 프로젝트 생성 (Dependencies: Spring Web, Spring Data JPA, H2 Database, MySQL Driver, Thymeleaf, Spring Security)
+- `application.properties` 기본 예시
+  ```properties
+  # 공통 JPA 설정
+  spring.jpa.hibernate.ddl-auto=update
+  spring.jpa.properties.hibernate.format_sql=true
+  logging.level.org.hibernate.SQL=debug
+
+  # 개발용 H2
+  spring.datasource.url=jdbc:h2:tcp://localhost/~/novel
+  spring.datasource.driver-class-name=org.h2.Driver
+  spring.datasource.username=sa
+  spring.datasource.password=
+
+  # 운영 대비 MySQL (필요 시 주석 해제)
+  # spring.datasource.url=jdbc:mysql://localhost:3306/novel_db
+  # spring.datasource.username=root
+  # spring.datasource.password=test1234
+
+  # 세션 설정
+  server.servlet.session.tracking-modes=cookie
+
+  # 파일 업로드
+  spring.servlet.multipart.enabled=true
+  spring.servlet.multipart.max-file-size=10MB
+  spring.servlet.multipart.max-request-size=10MB
+  ```
+- 프로필 분리(`application-dev.properties`, `application-prod.properties`)를 통해 환경 전환 학습
+- **학습 포인트:** Spring Initializr 사용법, 설정 파일로 환경 제어, 프로필 기반 설정 관리
+
+## 4. 핵심 기능 구현 계획
+### 4.1 회원 관리 기능
+- **도메인:** `Member` 엔티티 (id, email, name, password, joinedAt), `Address` 임베디드 타입
+- **리포지토리:** `MemberRepository` (Spring Data JPA 인터페이스)
+- **서비스:** `MemberService` (회원 가입, 중복 체크, 로그인 지원 로직)
+- **컨트롤러:** 가입/로그인 폼, 가입 처리, 마이페이지
+- **학습 포인트:** 엔티티 매핑, 서비스 계층 분리, DTO와 엔티티 구분, 비밀번호 암호화(BCrypt)
+
+### 4.2 소설 콘텐츠 관리 기능
+- **도메인:** `Novel` 엔티티 (id, title, authorName, description, coverImagePath, createdAt)
+- **리포지토리:** `NovelRepository` (등록/조회/검색)
+- **서비스:** `NovelService` (등록/수정/삭제, 이미지 저장 경로 관리)
+- **컨트롤러 & 뷰:** 소설 등록 폼, 목록, 상세 페이지
+- **이미지 업로드:** `MultipartFile` 사용, `files/novel-covers` 디렉터리에 저장, 파일명 중복 방지를 위한 UUID 적용
+- **학습 포인트:** 파일 업로드 처리, 예외 처리, 간단한 도메인 모델 설계
+
+### 4.3 인증 및 유효성 검사
+- **인증:** Spring Security의 Form Login 구성, 로그인 성공/실패 처리, 로그인 후 회원 정보 세션 유지
+- **인가:** 페이지 접근 제어(예: `/admin/**`), 로그인 필요 페이지 설정
+- **검증:** DTO에 `@NotBlank`, `@Email`, `@Size` 등 적용, `BindingResult`를 활용한 오류 메시지 노출
+- **학습 포인트:** Security 필터 체인 이해, Bean Validation 실습, 예외 메시지 처리
+
+## 5. 단계별 개발 계획 (8주)
+| 단계 | 기간(주) | 주요 과업 | 세부 실행 항목 | 학습 포인트 |
 | --- | --- | --- | --- | --- |
-| **Sprint 0** | 1주 | 개발 기반 세팅 | Gradle/Querydsl APT/코드 스타일/공통 오류 처리 뼈대 | `main` 브랜치에 빌드·테스트 성공, 기본 코드 스타일 체크 통과 |
-| **Sprint 0.5** | 0.5주 | 관측성·보안 기본 | Spring Boot Actuator, OpenTelemetry SDK, 구조화 로그, 보안 헤더 | 헬스체크/레디니스 엔드포인트 노출, 보안 스캐너 통과 |
-| **Sprint 1** | 1주 | 회원·인증 MVP | Member 도메인 확장, 가입/로그인/역할 전환, BCrypt 저장, 인증 테스트 | REST/SSR 회원 기능 E2E, Security 통합 테스트 통과 |
-| **Sprint 2** | 2주 | 소설/에피소드 CRUD | Novel/Episode 애그리게이트, S3 업로드 연동, 발행/임시저장, DTO·검증 | 작가가 회차 발행·수정, 통합 테스트 + S3 스텁 테스트 완료 |
-| **Sprint 3** | 2주 | 조회·검색 고도화 | Querydsl 동적 쿼리, Keyset 페이지네이션, 인기/장르 필터, 캐시 도입 | 목록 API 성능 지표 충족(조회 20ms 이하), 캐시 히트율 70% |
-| **Sprint 4** | 2주 | 커뮤니티·상호작용 | 댓글/대댓글, 즐겨찾기, 노출 정책, 권한 검증 | 댓글/즐겨찾기 API/SSR 테스트, 권한 위반 테스트 케이스 추가 |
-| **Sprint 5** | 1주 | 배포·운영 자동화 | Docker 이미지, GitHub Actions CI/CD, AWS(ECS/EC2 + RDS), 모니터링 | 스테이징 자동 배포, Blue/Green 리허설, 관측 지표 대시보드 구축 |
+| 1단계: 환경 구축 | 1-2주 | 개발 환경 설정 | Git 저장소 생성, Docker DB 구성, 기본 엔티티 생성, Thymeleaf 레이아웃 적용 | 로컬 개발 환경 통일, Git 활용 |
+| 2단계: 회원 기능 | 3-4주 | 회원 가입/로그인 | 회원 엔티티/서비스 구현, Security 설정, 가입/로그인 화면 제작, 단위 테스트 작성 | 보안 기초, 테스트 작성 |
+| 3단계: 콘텐츠 기능 | 5-6주 | 소설 CRUD 및 이미지 업로드 | 소설 엔티티/서비스 구현, 파일 업로드 처리, 목록/상세/수정 화면 구성, 검증 로직 추가 | CRUD 패턴, 파일 처리 |
+| 4단계: 테스트 & 배포 | 7-8주 | 품질 향상 | 통합 테스트, 간단 리팩토링, 로컬 배포 스크립트 작성(JAR 실행), 선택적 Heroku 배포 | 테스트 자동화, 배포 흐름 경험 |
 
-## 3. Milestone Outlook by Quarter
-- **2025 Q1:** Sprint 0~1 완료, 핵심 인증/회원 흐름 확보, 기본 관측성 체계 마련
-- **2025 Q2:** Sprint 2~3 실행, 소설/회차 도메인 완성과 검색 성능 확보, Redis 캐시 파일럿
-- **2025 Q3:** Sprint 4 집중, 커뮤니티 기능과 권한 관리 고도화, 사용자 참여 지표 측정
-- **2025 Q4:** Sprint 5 및 후속 안정화, CI/CD + AWS 운영 체계 정착, 비용/성능 최적화 착수
+- 매주 스탠드업 및 주간 리뷰를 통해 진행 상황 공유
+- 기본 Git 전략: 기능 브랜치 생성 → Pull Request 리뷰 → main 병합
+- **학습 포인트:** 애자일 방식 소개, 코드 리뷰 경험, 협업 도구 활용
 
-## 4. Long-term Backlog (2026+)
-1. **상업화:** 유료 회차·포인트·결제/정산 자동화
-2. **추천 시스템:** 규칙 기반 → ML 추천, 랭킹 배치 파이프라인 고도화
-3. **확장 채널:** 모바일 앱, API 게이트웨이, 글로벌 결제/다국어 지원
-4. **AI 도구:** 작품 요약, 태그 생성, 작가 보조 도구
+## 6. 추가 학습 및 확장 아이디어
+- 에피소드(회차) 관리, 태그/장르 분류, 검색 기능 등은 후속 프로젝트로 확장
+- OAuth2 소셜 로그인, AWS 배포, React 프론트엔드 연동 등 심화 학습 주제로 제안
+- 학습 노트/회고 작성으로 지식 정리, 포트폴리오 자료로 활용
 
-## 5. Risk & Mitigation
-- **트래픽 급증:** 캐시/Keyset 페이지네이션, Auto Scaling, CDN 도입 계획
-- **데이터 정합성:** Flyway 마이그레이션, 잠금/낙관적 락(버전 필드) 적용, 주기적 백업
-- **보안/저작권:** 콘텐츠 신고 프로세스, 감사 로그, OAuth2/JWT 확장, PII 마스킹
-- **인력·지식 편차:** 문서화/코드 리뷰 강화, 도메인/인프라 런북 작성
-
-## 6. Collaboration & Governance
-- GitHub Issues/Projects로 Sprint 백로그 관리, Notion으로 설계 문서 버전 관리
-- 주간 스탠드업, Sprint Review/Retro, 분기별 OKR 점검
-- 품질 게이트: 빌드 성공, 테스트 통과, 커버리지/정적 분석 기준 충족 시 머지 가능
-
-로드맵은 스프린트 회고와 KPI 추이에 따라 분기 단위로 재검토·갱신합니다.
+---
+본 기획서는 학원생이 무리 없이 따라갈 수 있는 범위를 중심으로 구성되었습니다. 상황에 맞게 기능 범위를 조절하고, 팀 프로젝트 시 주간 회의와 코드 리뷰를 적극 활용하시기 바랍니다. 추가 질문이나 개선 요청은 언제든지 환영합니다.
