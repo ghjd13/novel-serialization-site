@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.novelplatform.novelsite.domain.member.Member;
@@ -32,6 +33,15 @@ public class NovelController {
         return "novels/list";
     }
 
+    /**
+     * 소설 상세 페이지
+     */
+    @GetMapping("/novels/{novelId}")
+    public String detail(@PathVariable Long novelId, Model model) {
+        model.addAttribute("novel", novelService.findById(novelId));
+        return "novels/detail";
+    }
+
     @GetMapping("/novels/new")
     public String createForm(Model model) {
         model.addAttribute("novelCreateForm", new NovelCreateForm());
@@ -40,7 +50,7 @@ public class NovelController {
 
     @PostMapping("/novels/new")
     public String create(@AuthenticationPrincipal User user, @Valid @ModelAttribute NovelCreateForm novelCreateForm,
-            BindingResult bindingResult) {
+                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "novels/create";
         }
@@ -57,7 +67,8 @@ public class NovelController {
         }
 
         novelService.createNovel(novelCreateForm.getTitle(), novelCreateForm.getAuthor(),
-                novelCreateForm.getDescription(), novelCreateForm.getCoverImage(), member);
+            novelCreateForm.getDescription(), novelCreateForm.getCoverImage(), member);
         return "redirect:/novels";
     }
 }
+

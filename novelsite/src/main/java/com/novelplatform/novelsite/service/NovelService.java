@@ -33,4 +33,9 @@ public class NovelService {
     public List<Novel> findAll() {
         return novelRepository.findAll();
     }
+
+    public Novel findById(Long novelId){
+        return novelRepository.findById(novelId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 소설을 찾을 수 없습니다. id=" + novelId));
+    }
 }

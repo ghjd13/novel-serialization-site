@@ -11,7 +11,7 @@
         <h1>소설 목록</h1>
         <a class="btn btn-primary" th:href="@{/novels/new}">소설 등록</a>
     </div>
-    <table class="table table-striped">
+    <table class="table table-striped table-hover">
         <thead>
         <tr>
             <th>제목</th>
@@ -21,8 +21,11 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="novel : ${novels}">
-            <td th:text="${novel.title}"></td>
+        <!-- 소설 제목에 상세 페이지로 가는 링크 추가 -->
+        <tr th:each="novel : ${novels}" style="cursor: pointer;" th:onclick="|location.href='@{/novels/{id}(id=${novel.id})}'|">
+            <td>
+                <a th:href="@{/novels/{id}(id=${novel.id})}" th:text="${novel.title}">소설 제목</a>
+            </td>
             <td th:text="${novel.author}"></td>
             <td th:text="${#temporals.format(novel.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
             <td>
