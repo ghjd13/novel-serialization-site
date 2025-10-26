@@ -1,50 +1,54 @@
 package com.novelplatform.novelsite.config;
 
-import com.novelplatform.novelsite.security.MemberDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.novelplatform.novelsite.security.MemberUserDetailsService;
+
 @Configuration
-@EnableMethodSecurity
+@EnableWebSecurity
 public class SecurityConfig {
 
+    private final MemberUserDetailsService userDetailsService;
+
+    public SecurityConfig(MemberUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/actuator/health", "/login").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/members/register", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/novels").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(login -> login
+                .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
                         .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll())
-                .userDetailsService(userDetailsService);
+                .logout(Customizer.withDefaults())
+                .authenticationProvider(authenticationProvider());
+
         return http.build();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider(
-            PasswordEncoder passwordEncoder, MemberDetailsService memberDetailsService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(memberDetailsService);
-        return provider;
     }
 }
