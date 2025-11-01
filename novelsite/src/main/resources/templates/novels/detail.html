@@ -30,19 +30,20 @@
 
             <hr>
 
-            <!-- TODO: 4주차 다음 단계 - 수정/삭제 버튼 -->
-            <!--
+            <!-- 4주차 수정/삭제 버튼 -->
             <div sec:authorize="isAuthenticated()">
+                <!-- 현재 로그인한 사용자 ID(#authentication.name)와 소설 작성자 ID(novel.createdBy.loginId)가 같을 때만 버튼 표시 -->
                 <div th:if="${#authentication.name == novel.createdBy.loginId}" class="d-flex gap-2">
-                    <a href="#" class="btn btn-secondary">수정</a>
-                    <form action="#" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <!-- 수정 버튼 -->
+                    <a th:href="@{/novels/{id}/edit(id=${novel.id})}" class="btn btn-secondary">수정</a>
+                    <!-- 삭제 버튼 (Form) -->
+                    <form th:action="@{/novels/{id}/delete(id=${novel.id})}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까? 이미지도 함께 삭제됩니다.');">
                         <button type="submit" class="btn btn-danger">삭제</button>
                     </form>
                 </div>
             </div>
-            -->
 
-            <a class="btn btn-outline-secondary" th:href="@{/novels}">목록으로</a>
+            <a class="btn btn-outline-secondary mt-3" th:href="@{/novels}">목록으로</a>
         </div>
     </div>
 

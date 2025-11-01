@@ -57,6 +57,11 @@ public class Novel {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void update(String title, String author, String description) {
+        this.title = title;
+        this.author = author;
+        this.description = description;
+    }
     public Long getId() {
         return id;
     }
