@@ -2,16 +2,16 @@ package com.novelplatform.novelsite.service;
 
 import java.util.List;
 
-import com.novelplatform.novelsite.web.novel.NovelUpdateForm;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.novelplatform.novelsite.domain.member.Member;
 import com.novelplatform.novelsite.domain.novel.Novel;
 import com.novelplatform.novelsite.domain.novel.NovelRepository;
-import org.springframework.web.server.ResponseStatusException;
+import com.novelplatform.novelsite.web.novel.NovelUpdateForm;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,13 +38,14 @@ public class NovelService {
     }
 
     /**
-     * 소설 ID로 소설을 찾습니다.
+     * 소설 ID로 소설을 찾습니다. (수정됨: Fetch Join 사용)
      * @param novelId 소설 ID
-     * @return Novel 엔티티
+     * @return Novel 엔티티 (Member 정보 포함)
      * @throws IllegalArgumentException 소설을 찾지 못한 경우
      */
     public Novel findById(Long novelId) {
-        return novelRepository.findById(novelId)
+        // 기존 findById 대신, Member를 함께 가져오는 findByIdWithMember를 사용합니다.
+        return novelRepository.findByIdWithMember(novelId)
             .orElseThrow(() -> new IllegalArgumentException("해당 소설을 찾을 수 없습니다. id=" + novelId));
     }
 
@@ -56,14 +57,13 @@ public class NovelService {
      */
     @Transactional
     public void updateNovel(Long novelId, NovelUpdateForm form, String loginId) {
-        Novel novel = findById(novelId);
+        Novel novel = findById(novelId); // 이 시점에 Member 정보도 이미 로드됨
         // 권한 체크
         if (!novel.getCreatedBy().getLoginId().equals(loginId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
         // 엔티티 내부 로직을 통해 업데이트
         novel.update(form.getTitle(), form.getAuthor(), form.getDescription());
-        // 이미지는 이 단계에서는 수정하지 않습니다. (5주차 S3에서 처리)
     }
 
     /**
@@ -73,7 +73,7 @@ public class NovelService {
      */
     @Transactional
     public void deleteNovel(Long novelId, String loginId) {
-        Novel novel = findById(novelId);
+        Novel novel = findById(novelId); // 이 시점에 Member 정보도 이미 로드됨
         // 권한 체크
         if (!novel.getCreatedBy().getLoginId().equals(loginId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");

@@ -26,7 +26,7 @@
 
             <h4>소개</h4>
             <!-- Thymeleaf의 nl2br을 위해 th:utext와 T(String) 유틸리티 사용 -->
-            <p th:utext="${T(org.springframework.web.util.HtmlUtils).htmlEscape(novel.description).replace('&#10;', '<br>')}">소설 소개글</p>
+            <p th:text="${novel.description}" style="white-space: pre-line;">소설 소개글</p>
 
             <hr>
 
