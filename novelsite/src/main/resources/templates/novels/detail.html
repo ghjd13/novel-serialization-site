@@ -35,11 +35,13 @@
                 <!-- 현재 로그인한 사용자 ID(#authentication.name)와 소설 작성자 ID(novel.createdBy.loginId)가 같을 때만 버튼 표시 -->
                 <div th:if="${#authentication.name == novel.createdBy.loginId}" class="d-flex gap-2">
                     <!-- 수정 버튼 -->
-                    <a th:href="@{/novels/{id}/edit(id=${novel.id})}" class="btn btn-secondary">수정</a>
+                    <a th:href="@{/novels/{id}/edit(id=${novel.id})}" class="btn btn-secondary">작품 수정</a>
                     <!-- 삭제 버튼 (Form) -->
                     <form th:action="@{/novels/{id}/delete(id=${novel.id})}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까? 이미지도 함께 삭제됩니다.');">
-                        <button type="submit" class="btn btn-danger">삭제</button>
+                        <button type="submit" class="btn btn-danger">작품 삭제</button>
                     </form>
+                    <!-- [추가] 회차 등록 버튼 -->
+                    <a th:href="@{/novels/{id}/episodes/new(id=${novel.id})}" class="btn btn-primary ms-auto">새 회차 등록</a>
                 </div>
             </div>
 
@@ -47,12 +49,37 @@
         </div>
     </div>
 
-    <!-- TODO: 8주차 - 회차 목록 -->
+    <!-- [수정] 8주차 - 회차 목록 -->
     <div class="mt-5">
         <h2>회차 목록</h2>
-        <p class="text-muted">아직 등록된 회차가 없습니다.</p>
+
+        <!-- 회차가 없을 경우 -->
+        <div th:if="${#lists.isEmpty(episodes)}" class="alert alert-light text-center" role="alert">
+            아직 등록된 회차가 없습니다.
+        </div>
+
+        <!-- 회차가 있을 경우 (테이블) -->
+        <table th:if="${not #lists.isEmpty(episodes)}" class="table table-hover">
+            <thead class="table-light">
+            <tr>
+                <th scope="col">제목</th>
+                <th scope="col">등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--
+              tr에 클릭 이벤트를 걸어서 상세 뷰로 이동
+              URL: /novels/{novelId}/episodes/{episodeId}
+            -->
+            <tr th:each="episode : ${episodes}"
+                style="cursor: pointer;"
+                th:onclick="|location.href='@{/novels/{novelId}/episodes/{episodeId}(novelId=${novel.id}, episodeId=${episode.id})}'|">
+                <td th:text="${episode.title}">1화. 프롤로그</td>
+                <td th:text="${#temporals.format(episode.createdAt, 'yyyy-MM-dd')}">2025-01-01</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 </body>
 </html>
-

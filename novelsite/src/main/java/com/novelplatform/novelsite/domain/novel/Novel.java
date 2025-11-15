@@ -1,20 +1,13 @@
 package com.novelplatform.novelsite.domain.novel;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList; // 추가
+import java.util.List; // 추가
 
+import com.novelplatform.novelsite.domain.episode.Episode;
 import com.novelplatform.novelsite.domain.member.Member;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "novels")
@@ -40,6 +33,12 @@ public class Novel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member createdBy;
+
+    // --- [추가] Episode와의 1:N 관계 ---
+    // Novel이 삭제되면 관련된 Episode도 모두 삭제되도록 설정 (cascade, orphanRemoval)
+    @OneToMany(mappedBy = "novel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Episode> episodes = new ArrayList<>();
+    // --- [추가] 끝 ---
 
     protected Novel() {
     }
@@ -93,4 +92,9 @@ public class Novel {
     public void updateCoverImagePath(String coverImagePath) {
         this.coverImagePath = coverImagePath;
     }
+    // --- [추가] Getter for episodes ---
+    public List<Episode> getEpisodes() {
+        return episodes;
+    }
+    // --- [추가] 끝 ---
 }

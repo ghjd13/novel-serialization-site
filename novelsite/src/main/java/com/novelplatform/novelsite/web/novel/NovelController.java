@@ -1,6 +1,8 @@
 package com.novelplatform.novelsite.web.novel;
 
+import com.novelplatform.novelsite.domain.episode.Episode; // [추가]
 import com.novelplatform.novelsite.domain.novel.Novel;
+import com.novelplatform.novelsite.service.EpisodeService; // [추가]
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -19,15 +21,19 @@ import com.novelplatform.novelsite.service.NovelService;
 import jakarta.validation.Valid;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List; // [추가]
+
 @Controller
 public class NovelController {
 
     private final NovelService novelService;
     private final MemberService memberService;
+    private final EpisodeService episodeService; // [추가]
 
-    public NovelController(NovelService novelService, MemberService memberService) {
+    public NovelController(NovelService novelService, MemberService memberService, EpisodeService episodeService) { // [수정]
         this.novelService = novelService;
         this.memberService = memberService;
+        this.episodeService = episodeService; // [추가]
     }
 
     @GetMapping("/novels")
@@ -41,7 +47,12 @@ public class NovelController {
      */
     @GetMapping("/novels/{novelId}")
     public String detail(@PathVariable Long novelId, Model model) {
-        model.addAttribute("novel", novelService.findById(novelId));
+        // [수정] 소설 정보와 함께 회차 목록도 가져옴
+        Novel novel = novelService.findById(novelId);
+        List<Episode> episodes = episodeService.findEpisodesForNovel(novelId);
+
+        model.addAttribute("novel", novel);
+        model.addAttribute("episodes", episodes); // [추가]
         return "novels/detail";
     }
 
@@ -129,4 +140,3 @@ public class NovelController {
         }
     }
 }
-
